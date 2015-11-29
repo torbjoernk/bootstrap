@@ -86,6 +86,7 @@ const Modal = (($) => {
       this._isShown             = false
       this._isBodyOverflowing   = false
       this._ignoreBackdropClick = false
+      this._originalPadding     = {}
       this._scrollbarWidth      = 0
     }
 
@@ -198,6 +199,7 @@ const Modal = (($) => {
       this._isShown             = null
       this._isBodyOverflowing   = null
       this._ignoreBackdropClick = null
+      this._originalPadding     = null
       this._scrollbarWidth      = null
     }
 
@@ -417,35 +419,34 @@ const Modal = (($) => {
 
     _setScrollbar() {
       if (this._isBodyOverflowing) {
-        let bodyPadding = parseInt(
-          document.body.style.paddingRight || 0,
+        // Adjust Fixed Content Paddin
+        $(Selector.FIXED_CONTENT).map( (index, element) => {
+          let fixedPadding = $(element).css('padding-right')
+          this._originalPadding[index] = fixedPadding
+          $(element).css('padding-right',
+            `${parseFloat(fixedPadding || 0, 10) + this._scrollbarWidth}px`
+          )
+        })
+        // Adjust Body Padding
+        this._originalPadding.body = document.body.style.paddingRight
+        let bodyPadding = parseFloat(
+          $('body').css('padding-right') || 0,
           10
         )
         document.body.style.paddingRight =
           `${bodyPadding + this._scrollbarWidth}px`
-
-        let fixedPadding = parseInt(
-          $(Selector.FIXED_CONTENT).css('padding-right') || 0,
-          10
-        )
-        $(Selector.FIXED_CONTENT).css('padding-right', `${fixedPadding + this._scrollbarWidth}px`)
       }
     }
 
     _resetScrollbar() {
       if (this._isBodyOverflowing) {
-        let bodyPadding = parseInt(
-          document.body.style.paddingRight || 0,
-          10
-        )
-        document.body.style.paddingRight =
-          `${bodyPadding - this._scrollbarWidth}px`
-
-        let fixedPadding = parseInt(
-          $(Selector.FIXED_CONTENT).css('padding-right') || 0,
-          10
-        )
-        $(Selector.FIXED_CONTENT).css('padding-right', `${fixedPadding - this._scrollbarWidth}px`)
+          // Restore Fixed Contet Padding
+          $(Selector.FIXED_CONTENT).map( (index, element) => {
+            let fixedPadding = this._originalPadding[index]
+            $(element).css('padding-right', fixedPadding)
+          })
+          // Restore Body Padding
+          document.body.style.paddingRight = this._originalPadding.body
       }
     }
 
