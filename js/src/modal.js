@@ -86,7 +86,6 @@ const Modal = (($) => {
       this._isShown             = false
       this._isBodyOverflowing   = false
       this._ignoreBackdropClick = false
-      this._originalBodyPadding = 0
       this._scrollbarWidth      = 0
     }
 
@@ -199,7 +198,6 @@ const Modal = (($) => {
       this._isShown             = null
       this._isBodyOverflowing   = null
       this._ignoreBackdropClick = null
-      this._originalBodyPadding = null
       this._scrollbarWidth      = null
     }
 
@@ -418,21 +416,37 @@ const Modal = (($) => {
     }
 
     _setScrollbar() {
-      let bodyPadding = parseInt(
-        $(Selector.FIXED_CONTENT).css('padding-right') || 0,
-        10
-      )
-
-      this._originalBodyPadding = document.body.style.paddingRight || ''
-
       if (this._isBodyOverflowing) {
+        let bodyPadding = parseInt(
+          document.body.style.paddingRight || 0,
+          10
+        )
         document.body.style.paddingRight =
           `${bodyPadding + this._scrollbarWidth}px`
+
+        let fixedPadding = parseInt(
+          $(Selector.FIXED_CONTENT).css('padding-right') || 0,
+          10
+        )
+        $(Selector.FIXED_CONTENT).css('padding-right', `${fixedPadding + this._scrollbarWidth}px`)
       }
     }
 
     _resetScrollbar() {
-      document.body.style.paddingRight = this._originalBodyPadding
+      if (this._isBodyOverflowing) {
+        let bodyPadding = parseInt(
+          document.body.style.paddingRight || 0,
+          10
+        )
+        document.body.style.paddingRight =
+          `${bodyPadding - this._scrollbarWidth}px`
+
+        let fixedPadding = parseInt(
+          $(Selector.FIXED_CONTENT).css('padding-right') || 0,
+          10
+        )
+        $(Selector.FIXED_CONTENT).css('padding-right', `${fixedPadding - this._scrollbarWidth}px`)
+      }
     }
 
     _getScrollbarWidth() { // thx d.walsh
