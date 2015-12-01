@@ -420,7 +420,7 @@ const Modal = (($) => {
     _setScrollbar() {
       if (this._isBodyOverflowing) {
         // Adjust Fixed Content Padding
-        $(Selector.FIXED_CONTENT).map( (index, element) => {
+        $(Selector.FIXED_CONTENT).map((index, element) => {
           let fixedPadding = $(element).css('padding-right')
           this._originalPadding[index] = fixedPadding
           $(element).css('padding-right',
@@ -441,7 +441,7 @@ const Modal = (($) => {
     _resetScrollbar() {
       if (this._isBodyOverflowing) {
           // Restore Fixed Contet Padding
-          $(Selector.FIXED_CONTENT).map( (index, element) => {
+          $(Selector.FIXED_CONTENT).map((index, element) => {
             let fixedPadding = this._originalPadding[index]
             $(element).css('padding-right', fixedPadding)
           })
