@@ -428,7 +428,7 @@ const Modal = (($) => {
           )
         })
         // Adjust Body Padding
-        this._originalPadding.body = document.body.style.paddingRight
+        this._originalPadding.body = document.body.style.paddingRight || ''
         let bodyPadding = parseFloat(
           $('body').css('padding-right') || 0,
           10
