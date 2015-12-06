@@ -198,7 +198,6 @@ const Modal = (($) => {
       this._isShown             = null
       this._isBodyOverflowing   = null
       this._ignoreBackdropClick = null
-      this._originalPadding     = null
       this._scrollbarWidth      = null
     }
 
