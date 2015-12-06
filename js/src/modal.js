@@ -445,14 +445,14 @@ const Modal = (($) => {
         let padding = $(element).data('padding-right')
         if (typeof padding !== 'undefined') {
           $(element).css('padding-right', padding)
-          $(element).data('padding-right', '')
+          $(element).removeData('padding-right')
         }
       })
       // Restore body padding
       let padding = $('body').data('padding-right')
       if (typeof padding !== 'undefined') {
         document.body.style.paddingRight = $('body').data('padding-right')
-        $('body').data('padding-right', '')
+        $('body').removeData('padding-right')
       }
     }
 
