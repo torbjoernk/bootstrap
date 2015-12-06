@@ -86,7 +86,6 @@ const Modal = (($) => {
       this._isShown             = false
       this._isBodyOverflowing   = false
       this._ignoreBackdropClick = false
-      this._originalPadding     = {}
       this._scrollbarWidth      = 0
     }
 
@@ -419,34 +418,42 @@ const Modal = (($) => {
 
     _setScrollbar() {
       if (this._isBodyOverflowing) {
-        // Adjust Fixed Content Padding
+        // Adjust fixed content padding
         $(Selector.FIXED_CONTENT).map((index, element) => {
-          let fixedPadding = $(element).css('padding-right')
-          this._originalPadding[index] = fixedPadding
+          let padding = $(element).css('padding-right')
+          $(element).data('padding-right', padding)
           $(element).css('padding-right',
-            `${parseFloat(fixedPadding || 0, 10) + this._scrollbarWidth}px`
+            `${parseFloat(padding || 0, 10) + this._scrollbarWidth}px`
           )
         })
-        // Adjust Body Padding
-        this._originalPadding.body = document.body.style.paddingRight || ''
-        let bodyPadding = parseFloat(
+        // Adjust body padding
+        // Note: document.body.style.paddingRight returns the actual value
+        //   while $().css('padding-right') returns the calculated value
+        $('body').data('padding-right',
+          document.body.style.paddingRight || '')
+        let padding = parseFloat(
           $('body').css('padding-right') || 0,
           10
         )
         document.body.style.paddingRight =
-          `${bodyPadding + this._scrollbarWidth}px`
+          `${padding + this._scrollbarWidth}px`
       }
     }
 
     _resetScrollbar() {
-      if (this._isBodyOverflowing) {
-          // Restore Fixed Contet Padding
-          $(Selector.FIXED_CONTENT).map((index, element) => {
-            let fixedPadding = this._originalPadding[index]
-            $(element).css('padding-right', fixedPadding)
-          })
-          // Restore Body Padding
-          document.body.style.paddingRight = this._originalPadding.body
+      // Restore fixed content padding
+      $(Selector.FIXED_CONTENT).map((index, element) => {
+        let padding = $(element).data('padding-right')
+        if (typeof padding !== 'undefined') {
+          $(element).css('padding-right', padding)
+          $(element).data('padding-right', '')
+        }
+      })
+      // Restore body padding
+      let padding = $('body').data('padding-right')
+      if (typeof padding !== 'undefined') {
+        document.body.style.paddingRight = $('body').data('padding-right')
+        $('body').data('padding-right', '')
       }
     }
 
