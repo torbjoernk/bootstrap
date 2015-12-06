@@ -316,7 +316,7 @@ $(function () {
 
     $('<div id="modal-test"/>')
       .on('hidden.bs.modal', function () {
-        assert.strictEqual($body.data('padding-right'), undefined, 'removed original body padding in data attribute')
+        assert.strictEqual($body.data('padding-right'), undefined, 'removed original body padding from data attribute')
         $body.removeAttr('style')
         done()
       })
