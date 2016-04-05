@@ -86,7 +86,6 @@ const Modal = (($) => {
       this._isShown             = false
       this._isBodyOverflowing   = false
       this._ignoreBackdropClick = false
-      this._originalBodyPadding = 0
       this._scrollbarWidth      = 0
     }
 
@@ -199,7 +198,6 @@ const Modal = (($) => {
       this._isShown             = null
       this._isBodyOverflowing   = null
       this._ignoreBackdropClick = null
-      this._originalBodyPadding = null
       this._scrollbarWidth      = null
     }
 
@@ -419,21 +417,44 @@ const Modal = (($) => {
     }
 
     _setScrollbar() {
-      let bodyPadding = parseInt(
-        $(Selector.FIXED_CONTENT).css('padding-right') || 0,
-        10
-      )
-
-      this._originalBodyPadding = document.body.style.paddingRight || ''
-
       if (this._isBodyOverflowing) {
+        // Adjust fixed content padding
+        $(Selector.FIXED_CONTENT).map((index, element) => {
+          let padding = $(element).css('padding-right')
+          $(element).data('padding-right', padding)
+          $(element).css('padding-right',
+            `${parseFloat(padding || 0, 10) + this._scrollbarWidth}px`
+          )
+        })
+        // Adjust body padding
+        // Note: document.body.style.paddingRight returns the actual value
+        //   while $().css('padding-right') returns the calculated value
+        $('body').data('padding-right',
+          document.body.style.paddingRight || '')
+        let padding = parseFloat(
+          $('body').css('padding-right') || 0,
+          10
+        )
         document.body.style.paddingRight =
-          `${bodyPadding + this._scrollbarWidth}px`
+          `${padding + this._scrollbarWidth}px`
       }
     }
 
     _resetScrollbar() {
-      document.body.style.paddingRight = this._originalBodyPadding
+      // Restore fixed content padding
+      $(Selector.FIXED_CONTENT).map((index, element) => {
+        let padding = $(element).data('padding-right')
+        if (typeof padding !== 'undefined') {
+          $(element).css('padding-right', padding)
+          $(element).removeData('padding-right')
+        }
+      })
+      // Restore body padding
+      let padding = $('body').data('padding-right')
+      if (typeof padding !== 'undefined') {
+        document.body.style.paddingRight = $('body').data('padding-right')
+        $('body').removeData('padding-right')
+      }
     }
 
     _getScrollbarWidth() { // thx d.walsh

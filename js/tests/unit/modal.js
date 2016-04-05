@@ -306,6 +306,27 @@ $(function () {
     $toggleBtn.trigger('click')
   })
 
+  QUnit.test('should store original body padding in data-padding-right before showing', function (assert) {
+    assert.expect(2)
+    var done = assert.async()
+    var originalBodyPad = ''
+    var $body = $(document.body)
+
+    $body.css('padding-right', originalBodyPad)
+
+    $('<div id="modal-test"/>')
+      .on('hidden.bs.modal', function () {
+        assert.strictEqual($body.data('padding-right'), undefined, 'removed original body padding from data attribute')
+        $body.removeAttr('style')
+        done()
+      })
+      .on('shown.bs.modal', function () {
+        assert.strictEqual($body.data('padding-right'), originalBodyPad, 'stored original body padding in data attribute')
+        $(this).bootstrapModal('hide')
+      })
+      .bootstrapModal('show')
+  })
+
   QUnit.test('should restore inline body padding after closing', function (assert) {
     assert.expect(2)
     var done = assert.async()
