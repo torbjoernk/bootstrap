@@ -105,7 +105,6 @@
         this._isShown = false;
         this._isBodyOverflowing = false;
         this._ignoreBackdropClick = false;
-        this._originalBodyPadding = 0;
         this._scrollbarWidth = 0;
       }
 
@@ -213,7 +212,6 @@
           this._isShown = null;
           this._isBodyOverflowing = null;
           this._ignoreBackdropClick = null;
-          this._originalBodyPadding = null;
           this._scrollbarWidth = null;
         }
 
@@ -439,18 +437,40 @@
       }, {
         key: '_setScrollbar',
         value: function _setScrollbar() {
-          var bodyPadding = parseInt($(Selector.FIXED_CONTENT).css('padding-right') || 0, 10);
-
-          this._originalBodyPadding = document.body.style.paddingRight || '';
+          var _this7 = this;
 
           if (this._isBodyOverflowing) {
-            document.body.style.paddingRight = bodyPadding + this._scrollbarWidth + 'px';
+            // Adjust fixed content padding
+            $(Selector.FIXED_CONTENT).map(function (index, element) {
+              var padding = $(element).css('padding-right');
+              $(element).data('padding-right', padding);
+              $(element).css('padding-right', parseFloat(padding || 0, 10) + _this7._scrollbarWidth + 'px');
+            });
+            // Adjust body padding
+            // Note: document.body.style.paddingRight returns the actual value
+            //   while $().css('padding-right') returns the calculated value
+            $('body').data('padding-right', document.body.style.paddingRight || '');
+            var padding = parseFloat($('body').css('padding-right') || 0, 10);
+            document.body.style.paddingRight = padding + this._scrollbarWidth + 'px';
           }
         }
       }, {
         key: '_resetScrollbar',
         value: function _resetScrollbar() {
-          document.body.style.paddingRight = this._originalBodyPadding;
+          // Restore fixed content padding
+          $(Selector.FIXED_CONTENT).map(function (index, element) {
+            var padding = $(element).data('padding-right');
+            if (typeof padding !== 'undefined') {
+              $(element).css('padding-right', padding);
+              $(element).removeData('padding-right');
+            }
+          });
+          // Restore body padding
+          var padding = $('body').data('padding-right');
+          if (typeof padding !== 'undefined') {
+            document.body.style.paddingRight = $('body').data('padding-right');
+            $('body').removeData('padding-right');
+          }
         }
       }, {
         key: '_getScrollbarWidth',
@@ -504,7 +524,7 @@
     })();
 
     $(document).on(Event.CLICK_DATA_API, Selector.DATA_TOGGLE, function (event) {
-      var _this7 = this;
+      var _this8 = this;
 
       var target = undefined;
       var selector = _Util['default'].getSelectorFromElement(this);
@@ -526,8 +546,8 @@
         }
 
         $target.one(Event.HIDDEN, function () {
-          if ($(_this7).is(':visible')) {
-            _this7.focus();
+          if ($(_this8).is(':visible')) {
+            _this8.focus();
           }
         });
       });
